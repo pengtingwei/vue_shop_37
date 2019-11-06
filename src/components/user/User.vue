@@ -37,7 +37,7 @@
             <!-- 修改按钮 -->
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEdit(scope.row.id)"></el-button>
             <!-- 删除按钮 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
             <!-- 分配角色按钮 -->
             <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" size="mini" @click="setRole(scope.row)"></el-button>
@@ -212,10 +212,30 @@ export default {
       this.getUserList()
       this.$message.success(res.meta.msg)
 
-      // 将修改的对话框 关闭 
+      // 将修改的对话框 关闭
       this.editUserDialogVisible = false
+    },
+    async removeUserById(id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
 
+      // 如果用户确认删除，则返回值为字符串 confirm
+      // 如果用户取消了删除，则返回值为字符串 cancel
+      // console.log(confirmResult)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
 
+      const { data: res } = await this.$http.delete(`users/${id}`)
+
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+
+      this.getUserList()
+
+      this.$message.error(res.meta.msg)
     }
   }
 }
